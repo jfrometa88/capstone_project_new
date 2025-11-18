@@ -1,0 +1,10 @@
+dash
+plotly
+pandas
+numpy
+scikit-learn
+statsmodels
+openpyxl
+google_generativeai
+python-dotenv
+google-adk
