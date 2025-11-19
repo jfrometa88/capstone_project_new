@@ -5,8 +5,7 @@ from google.adk.runners import InMemoryRunner
 from google.adk.sessions import InMemorySessionService
 from google.adk.tools import AgentTool, ToolContext
 import os
-from dotenv import load_dotenv
-import logging
+from config import WAREHOUSE_MODEL
 from datetime import datetime
 
 # Import our utility functions
@@ -17,23 +16,6 @@ from utils.stock_analysis import get_top_references_stock, get_avg_time_in_wareh
 # Setup logging
 from utils.logger import setup_logger
 logger = setup_logger()
-
-load_dotenv()
-
-GOOGLE_API_KEY = os.getenv('GEMINI_API_KEY')
-if not GOOGLE_API_KEY:
-    logger.error("GEMINI_API_KEY environment variable not set.")
-    raise ValueError("GEMINI_API_KEY environment variable not set.")
-else:
-    logger.info("GEMINI_API_KEY successfully loaded from environment.")
-
-# Retry configuration
-retry_config = types.HttpRetryOptions(
-    attempts=5,
-    exp_base=7,
-    initial_delay=1,
-    http_status_codes=[429, 500, 503, 504],
-)
 
 from utils.data_loader import load_expeditions_data
 df_expeditions = load_expeditions_data()
@@ -67,7 +49,7 @@ def avalaible_months():
 
 client_service_agent = LlmAgent(
     name="client_service_agent",
-    model=Gemini(model="gemini-2.0-flash-exp", retry_options=retry_config),
+    model=WAREHOUSE_MODEL,
     instruction="""You are a Client Service Level Analysis Specialist. Your expertise is analyzing client performance and service levels.
 
 RESPONSIBILITIES:
@@ -97,7 +79,7 @@ Focus on identifying improvement opportunities for underperforming clients.
 
 reference_expeditions_agent = LlmAgent(
     name="reference_expeditions_agent",
-    model=Gemini(model="gemini-2.0-flash-exp", retry_options=retry_config),
+    model=WAREHOUSE_MODEL,
     instruction="""You are a Reference Demand Analysis Specialist. Your expertise is analyzing material reference demand patterns and forecasting.
 
 RESPONSIBILITIES:
@@ -127,7 +109,7 @@ Provide clear explanations of demand patterns and their business implications.
 
 stock_analysis_agent = LlmAgent(
     name="stock_analysis_agent",
-    model=Gemini(model="gemini-2.0-flash-exp", retry_options=retry_config),
+    model=WAREHOUSE_MODEL,
     instruction="""You are a Stock and Inventory Analysis Specialist. Your expertise is analyzing warehouse stock levels and inventory aging.
 
 RESPONSIBILITIES:
@@ -164,7 +146,7 @@ stock_agent_tool = AgentTool(agent=stock_analysis_agent)
 
 orchestrator_agent = LlmAgent(
     name="warehouse_orchestrator_agent",
-    model=Gemini(model="gemini-2.0-flash-exp", retry_options=retry_config),
+    model=WAREHOUSE_MODEL,
     instruction="""You are the Warehouse Analytics Orchestrator. You coordinate between specialized agents to provide comprehensive warehouse insights.
 
 RESPONSIBILITIES:

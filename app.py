@@ -27,11 +27,14 @@ table_cell_style = {
 }
 
 import dash
-from dash import dcc, html, Input, Output, callback
+from dash import dcc, html, Input, Output, callback, State
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
+import asyncio
+from agents.agent_manager import agent_manager
+
 from utils.logger import setup_logger
 
 logger = setup_logger()
@@ -57,6 +60,89 @@ available_months = sorted(expeditions_df['fechaTransporte'].dt.month.unique()) i
 app.layout = html.Div([
     html.H1("Warehouse Analytics Dashboard", style={'textAlign': 'center', 'marginBottom': 30}),
     
+    # ai_chat_section
+    html.Div([
+        html.Div([
+            html.H3("🤖 AI Warehouse Assistant", 
+                    style={'color': '#2c3e50', 'marginBottom': '15px', 'display': 'inline-block'}),
+            html.Span("Powered by Gemini", 
+                    style={'float': 'right', 'backgroundColor': '#4285f4', 'color': 'white', 
+                        'padding': '5px 10px', 'borderRadius': '12px', 'fontSize': '12px',
+                        'marginTop': '8px'})
+        ]),
+        
+        html.Div([
+            dcc.Textarea(
+                id='ai-chat-input',
+                placeholder='💡 Ask me anything about:\n• Client service levels\n• Stock analysis  \n• Demand forecasting\n• Inventory optimization...',
+                style={
+                    'width': '100%', 
+                    'height': '80px', 
+                    'marginBottom': '10px',
+                    'padding': '12px',
+                    'border': '2px solid #e1e8ed',
+                    'borderRadius': '8px',
+                    'fontSize': '14px',
+                    'resize': 'vertical'
+                }
+            ),
+            html.Div([
+                html.Button('🚀 Ask AI Assistant', id='ai-chat-button', n_clicks=0,
+                        style={
+                            'backgroundColor': '#3498db', 
+                            'color': 'white', 
+                            'border': 'none', 
+                            'padding': '12px 24px', 
+                            'borderRadius': '6px', 
+                            'cursor': 'pointer',
+                            'fontSize': '14px',
+                            'fontWeight': 'bold'
+                        }),
+                html.Div(id='chat-loading', style={'display': 'inline-block', 'marginLeft': '10px'})
+            ]),
+        ]),
+        
+        html.Div(id='ai-chat-response', style={
+            'marginTop': '20px', 
+            'padding': '20px', 
+            'backgroundColor': '#f8f9fa', 
+            'borderRadius': '10px',
+            'border': '1px solid #dfe6e9',
+            'minHeight': '120px',
+            'whiteSpace': 'pre-wrap',
+            'lineHeight': '1.6'
+        }),
+        
+        html.Div([
+            html.P("💡 Example questions:", style={'fontWeight': 'bold', 'marginBottom': '8px', 'color': '#2c3e50'}),
+            html.Div([
+                html.Button("Show top clients", id="example-1", n_clicks=0,
+                        style={'margin': '2px', 'padding': '5px 10px', 'fontSize': '12px', 
+                                'border': '1px solid #bdc3c7', 'borderRadius': '4px', 
+                                'backgroundColor': '#ecf0f1', 'cursor': 'pointer'}),
+                html.Button("Analyze stock aging", id="example-2", n_clicks=0,
+                        style={'margin': '2px', 'padding': '5px 10px', 'fontSize': '12px', 
+                                'border': '1px solid #bdc3c7', 'borderRadius': '4px', 
+                                'backgroundColor': '#ecf0f1', 'cursor': 'pointer'}),
+                html.Button("Forecast demand", id="example-3", n_clicks=0,
+                        style={'margin': '2px', 'padding': '5px 10px', 'fontSize': '12px', 
+                                'border': '1px solid #bdc3c7', 'borderRadius': '4px', 
+                                'backgroundColor': '#ecf0f1', 'cursor': 'pointer'}),
+                html.Button("Service level report", id="example-4", n_clicks=0,
+                        style={'margin': '2px', 'padding': '5px 10px', 'fontSize': '12px', 
+                                'border': '1px solid #bdc3c7', 'borderRadius': '4px', 
+                                'backgroundColor': '#ecf0f1', 'cursor': 'pointer'}),
+            ])
+        ], style={'marginTop': '15px', 'fontSize': '13px'})
+    ], style={
+        'padding': '25px', 
+        'backgroundColor': 'white', 
+        'borderRadius': '12px', 
+        'marginBottom': '25px', 
+        'border': '1px solid #ecf0f1',
+        'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'
+    }),
+
     # Global Filters
     html.Div([
         html.Div([
@@ -146,8 +232,8 @@ def render_client_service_tab(year, month, client_limit):
         ])
     
     # Get service levels and metrics
-    service_levels = get_client_service_level(top_clients, year, month)
-    expedition_metrics = get_expedition_metrics(top_clients, year, month)
+    service_levels = get_client_service_level(month=month, client_list=top_clients, year=year)
+    expedition_metrics = get_expedition_metrics(month=month, client_list=top_clients, year=year)
     
     # Create service level chart
     fig_service = go.Figure()
@@ -243,7 +329,7 @@ def render_reference_expeditions_tab(year, month, reference_limit):
         ])
     
     # Get time series data and forecasts
-    time_series = get_reference_time_series(top_references, year, month)
+    time_series = get_reference_time_series(month=month, reference_list=top_references, year=year)
     forecasts = forecast_next_month_demand(top_references)
     
     # Create time series chart
@@ -400,6 +486,104 @@ def render_reference_stock_tab(reference_limit):
             ])
         ], style=table_style)
     ])
+
+# Callbacks for AI chat functionality
+@callback(
+    Output('ai-chat-input', 'value'),
+    [Input('example-1', 'n_clicks'),
+     Input('example-2', 'n_clicks'),
+     Input('example-3', 'n_clicks'),
+     Input('example-4', 'n_clicks')]
+)
+def update_chat_input(example1, example2, example3, example4):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return ""
+    
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    examples = {
+        'example-1': "Show me the top 5 clients and their service levels for this year",
+        'example-2': "Analyze inventory aging for our top 5 stock references",
+        'example-3': "Forecast next month demand for our most shipped references", 
+        'example-4': "Generate a comprehensive service level report for all clients"
+    }
+    
+    return examples.get(button_id, "")
+
+# Callback to show loading
+@callback(
+    Output('chat-loading', 'children'),
+    [Input('ai-chat-button', 'n_clicks')],
+    [State('ai-chat-input', 'value')]
+)
+def show_loading(n_clicks, message):
+    if n_clicks > 0 and message:
+        return "⏳ Processing..."
+    return ""
+
+@callback(
+    Output('ai-chat-response', 'children'),
+    [Input('ai-chat-button', 'n_clicks')],
+    [State('ai-chat-input', 'value')],
+    prevent_initial_call=True
+)
+def update_ai_chat(n_clicks, user_message):
+    if not user_message or user_message.strip() == "":
+        return html.Div([
+            html.P("Please enter a question to get AI-powered insights.", 
+                   style={'color': '#7f8c8d', 'fontStyle': 'italic'})
+        ])
+    
+    try:
+        # Async function to run the agent
+        async def get_ai_response():
+            return await agent_manager.query_orchestrator(user_message)
+        
+        # Run the async function and get the response
+        response = asyncio.run(get_ai_response())
+        
+        return html.Div([
+            html.P("🤖 AI Assistant:", 
+                   style={'fontWeight': 'bold', 'marginBottom': '10px', 'color': '#2c3e50'}),
+            html.Div(response, 
+                    style={
+                        'lineHeight': '1.6', 
+                        'padding': '15px', 
+                        'backgroundColor': 'white', 
+                        'borderRadius': '8px',
+                        'border': '1px solid #e1e8ed'
+                    })
+        ])
+        
+    except Exception as e:
+        logger.error(f"Error in AI chat callback: {e}")
+        return html.Div([
+            html.P("❌ Error:", 
+                   style={'fontWeight': 'bold', 'color': '#e74c3c', 'marginBottom': '10px'}),
+            html.P(f"Failed to get AI response: {str(e)}", 
+                   style={'color': '#7f8c8d'}),
+            html.P("Please check if the AI service is properly configured.", 
+                   style={'color': '#7f8c8d', 'fontStyle': 'italic'})
+        ])
+
+# Callback to show loading
+@callback(
+    Output('ai-chat-response', 'children', allow_duplicate=True),
+    [Input('ai-chat-button', 'n_clicks')],
+    [State('ai-chat-input', 'value')],
+    prevent_initial_call=True
+)
+def show_loading(n_clicks, user_message):
+    if n_clicks and user_message:
+        return html.Div([
+            html.Div([
+                html.Span("⏳ Processing your query...", 
+                         style={'marginLeft': '10px', 'color': '#3498db'})
+            ], style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', 
+                     'padding': '20px'})
+        ])
+    return dash.no_update
 
 if __name__ == '__main__':
     app.run(debug=True)

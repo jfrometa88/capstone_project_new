@@ -2,10 +2,11 @@ import pandas as pd
 from datetime import datetime
 from .data_loader import load_stock_data
 from .logger import setup_logger
+from typing import List, Dict
 
 logger = setup_logger()
 
-def get_top_references_stock(limit=5):
+def get_top_references_stock(limit: int = 5) -> List[str]:
     """
     Return top references by total pieces in stock.
     
@@ -13,7 +14,7 @@ def get_top_references_stock(limit=5):
         limit (int): Number of top references to return (1-8)
     
     Returns:
-        list: List of top reference names
+        List[str]: List of top reference names
     """
     df = load_stock_data()
     if df.empty:
@@ -23,15 +24,15 @@ def get_top_references_stock(limit=5):
     logger.info(f"Top {limit} references by stock: {reference_totals.index.tolist()}")
     return reference_totals.index.tolist()
 
-def get_avg_time_in_warehouse(reference_list):
+def get_avg_time_in_warehouse(reference_list: List[str]) -> Dict[str, float]:
     """
     Calculate average time in warehouse for HUs of given references.
     
     Args:
-        reference_list (list): List of reference names
+        reference_list (List[str]): List of reference names
     
     Returns:
-        dict: Average time in days for each reference
+        Dict[str, float]: Average time in days for each reference
     """
     df = load_stock_data()
     if df.empty:
@@ -53,15 +54,15 @@ def get_avg_time_in_warehouse(reference_list):
     logger.info(f"Calculated average time in warehouse for references: {avg_times}")
     return avg_times
 
-def get_stock_metrics(reference_list):
+def get_stock_metrics(reference_list: List[str]) -> Dict[str, dict]:
     """
     Get stock metrics for given references.
     
     Args:
-        reference_list (list): List of reference names
+        reference_list (List[str]): List of reference names
     
     Returns:
-        dict: Stock metrics for each reference
+        Dict[str, dict]: Stock metrics for each reference
     """
     df = load_stock_data()
     if df.empty:
