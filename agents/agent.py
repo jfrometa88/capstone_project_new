@@ -1,3 +1,19 @@
+# [Nombre del programa, ej: Warehouse AI Agent]
+# Copyright (C) [Año] [Tu Nombre Completo]
+# 
+# Este programa es software libre: usted puede redistribuirlo y/o modificarlo
+# bajo los términos de la Licencia Pública General de GNU
+# tal como la publica la Free Software Foundation, ya sea la versión 3
+# de la Licencia, o (a su elección) cualquier versión posterior.
+#
+# Este programa se distribuye con la esperanza de que sea útil,
+# pero SIN NINGUNA GARANTÍA; incluso sin la garantía implícita de
+# COMERCIALIZACIÓN o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. 
+# Consulte la Licencia Pública General de GNU para más detalles.
+#
+# Debería haber recibido una copia de la Licencia Pública General de GNU
+# junto con este programa. Si no, vea <https://www.gnu.org/licenses/>.
+
 from google.genai import types
 from google.adk.agents import LlmAgent
 from google.adk.models.google_llm import Gemini
@@ -5,7 +21,8 @@ from google.adk.runners import InMemoryRunner
 from google.adk.sessions import InMemorySessionService
 from google.adk.tools import AgentTool, ToolContext
 import os
-from config import WAREHOUSE_MODEL
+from config import WAREHOUSE_MODEL_orq
+from config import WAREHOUSE_MODEL_esp
 from datetime import datetime
 
 # Import our utility functions
@@ -49,7 +66,7 @@ def avalaible_months():
 
 client_service_agent = LlmAgent(
     name="client_service_agent",
-    model=WAREHOUSE_MODEL,
+    model=WAREHOUSE_MODEL_esp,
     instruction="""You are a Client Service Level Analysis Specialist. Your expertise is analyzing client performance and service levels.
 
 RESPONSIBILITIES:
@@ -79,7 +96,7 @@ Focus on identifying improvement opportunities for underperforming clients.
 
 reference_expeditions_agent = LlmAgent(
     name="reference_expeditions_agent",
-    model=WAREHOUSE_MODEL,
+    model=WAREHOUSE_MODEL_esp,
     instruction="""You are a Reference Demand Analysis Specialist. Your expertise is analyzing material reference demand patterns and forecasting.
 
 RESPONSIBILITIES:
@@ -109,7 +126,7 @@ Provide clear explanations of demand patterns and their business implications.
 
 stock_analysis_agent = LlmAgent(
     name="stock_analysis_agent",
-    model=WAREHOUSE_MODEL,
+    model=WAREHOUSE_MODEL_esp,
     instruction="""You are a Stock and Inventory Analysis Specialist. Your expertise is analyzing warehouse stock levels and inventory aging.
 
 RESPONSIBILITIES:
@@ -146,8 +163,10 @@ stock_agent_tool = AgentTool(agent=stock_analysis_agent)
 
 orchestrator_agent = LlmAgent(
     name="warehouse_orchestrator_agent",
-    model=WAREHOUSE_MODEL,
+    model=WAREHOUSE_MODEL_orq,
     instruction="""You are the Warehouse Analytics Orchestrator. You coordinate between specialized agents to provide comprehensive warehouse insights.
+
+**PRIORITY RULE: ALWAYS use your SPECIALIZED AGENTS (tools) to answer the user's query before generating a final response. Do not use conversational filler or unnecessary steps.**
 
 RESPONSIBILITIES:
 - Route user queries to the appropriate specialized agent
@@ -169,11 +188,12 @@ ROUTING GUIDELINES:
 - Client-focused questions → client_service_agent
 - Demand and forecasting questions → reference_expeditions_agent  
 - Stock and inventory questions → stock_analysis_agent
-- Complex multi-domain questions → Use multiple agents as needed
+- Complex multi-domain questions → **You MUST determine the optimal sequence and use multiple agents as needed.**
 
 RESPONSE STRUCTURE:
+**AFTER receiving the tool outputs (findings from the agents), structure the final response as follows:**
 1. Acknowledge the user's query and identify the relevant domain(s)
-2. Route to appropriate agent(s) and summarize their findings
+2. Summarize the findings provided by the agent(s) output.
 3. Provide integrated insights and recommendations
 4. Highlight cross-domain implications when relevant
 

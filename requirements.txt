@@ -8,3 +8,7 @@ openpyxl
 google_generativeai
 python-dotenv
 google-adk
+requests
+fastapi
+uvicorn
+python-multipart

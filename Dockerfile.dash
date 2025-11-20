@@ -1,0 +1,25 @@
+# Dockerfile para la aplicación Dash (Frontend)
+
+# Usa una imagen base oficial de Python
+FROM python:3.11-slim
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Copia los archivos de dependencia.
+# Asume que 'requirements.txt' lista dash, plotly, requests, pandas, etc.
+COPY requirements.txt .
+
+# Instala las dependencias
+# También copia los datos que el dashboard pueda cargar directamente
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia el resto de la aplicación, incluyendo app.py
+COPY . /app
+
+# Expone el puerto por defecto de Dash
+EXPOSE 8050
+
+# Comando para iniciar la aplicación Dash (asume que app.py es el punto de entrada)
+# Nota: La forma de ejecutar Dash en producción puede variar, pero esto es suficiente para el Capstone.
+CMD ["python", "app.py"]

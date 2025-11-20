@@ -27,40 +27,42 @@ A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced w
 - **Plotly Dash**: Interactive web dashboard
 - **Plotly Graph Objects**: Advanced data visualizations
 - **HTML/CSS**: Custom styling and responsive design
+- **Requests (communication)**: HTTP client to synchronously consume the FastAPI AI service. 
 
 ### Backend & Data Processing
-- **Python 3.8+**: Core programming language
+- **Python 3.13**: Core programming language
+- **FastAPI**: Asynchronous API to manage Dashboard interaction with IA.
 - **Pandas**: Data manipulation and analysis
 - **Openpyxl**: Excel file processing
 
 ### AI & Machine Learning
 - **Google ADK**: Agent development kit
-- **Gemini 2.0 Flash**: Large language model
+- **Gemini 2.5 Flash**: Large language model
 - **Custom Tools**: Modular function tools for data analysis
 
 ## 📁 Project Structure
 ```text
 warehouse-analytics/
 ├── app.py # Main Dash application
+├── IA_api.py # Main fastapi application for IA service
+├── config.py # Configuration of IA models
 ├── agents/ # AI agents implementation
 │ ├── init.py
-│ ├── specialized_agents.py # 3 specialized agents
-│ ├── orchestrator_agent.py # Main orchestrator agent
+│ ├── agent.py # Main orchestrator agent and agents tools
 │ └── agent_manager.py # Agent session management
 ├── utils/ # Data processing modules
 │ ├── data_loader.py # Excel data loading
 │ ├── expedition_analysis.py # Client service analysis
 │ ├── reference_analysis.py # Demand forecasting
 │ └── stock_analysis.py # Inventory analysis
+│ └── logger.py # logging module tool
 ├── data/ # Sample data files
 │ ├── expediciones_test.xlsx # Expedition data
 │ └── ubicaciones_test.xlsx # Stock location data
 ├── assets/ # Static assets
-│ └── style.css # Custom CSS styles
 ├── requirements.txt # Python dependencies
 └── .env # Environment variables
 ```
-
 
 
 ## 🏗 Architecture
@@ -73,16 +75,46 @@ warehouse-analytics/
 
 ### Agent Architecture
 
-```text
-User Query → Orchestrator Agent → Specialized Agent → Tool Functions → Response
-↓ ↓ ↓ ↓ ↓
-Dashboard → Warehouse Manager → Domain Expert → Data Analysis → Business Insights
+```mermaid
+flowchart TD
+    A[Dash Frontend] -->|POST Query| B[FastAPI Server]
+    
+    B --> C[Session Manager]
+    C -->|retrieve| M[(Session Memory)]
+    
+    M -->|context| D{Orchestrator Agent}
+    
+    D -->|delegate| E[Client Service Agent]
+    D -->|delegate| F[Reference Expeditions Agent]
+    D -->|delegate| G[Stock Analysis Agent]
+    
+    E --> H[Client Tools]
+    F --> I[Demand Tools]
+    G --> J[Stock Tools]
+    
+    H --> K[Warehouse Data]
+    I --> K
+    J --> K
+    
+    E -->|results| D
+    F -->|results| D
+    G -->|results| D
+    
+    D -->|update| M
+    D -->|response| L[JSON Response]
+    
+    L --> A
+    
+    classDef memory fill:#fff3e0,stroke:#ff9800
+    classDef agent fill:#e3f2fd,stroke:#2196f3
+    class M memory
+    class D,E,F,G agent
 ```
 
 ## ⚙️ Installation & Setup
 
 ### Prerequisites
-- Python 3.8 or higher
+- Python 3.13
 - Google Gemini API key
 - Git
 
@@ -90,10 +122,10 @@ Dashboard → Warehouse Manager → Domain Expert → Data Analysis → Business
 
 1. **Clone the repository**
    
-   ```bash
-   git clone <repository-url>
-   cd warehouse-analytics
-    ```
+```bash
+git clone <repository-url>
+cd warehouse-analytics
+```
     
 2. **Create virtual environment**
    
@@ -121,13 +153,20 @@ echo "GEMINI_API_KEY=your_google_gemini_api_key_here" > .env
 
 - Ensure files follow the expected column structure
 
-6. **Run the application**
+6. **Run the IA backend server**
+
+```bash
+python IA_api.py
+```
+
+7. **Run the Dashboard application**
+_Open a new terminal_
 
 ```bash
 python app.py
 ```
 
-7. **Access the dashboard**
+1. **Access the dashboard**
 
 - Open [http://127.0.0.1:8050] in your browser
 
@@ -208,6 +247,8 @@ The AI agents have access to specialized tools:
 
 - Predictive analytics capabilities
 
+- AI Service Resilience and Error Isolation: API errors (such as rate limit errors like 429) from the Gemini service are now gracefully handled by the FastAPI backend. This prevents direct UI crashes in the Dash frontend, ensuring a stable and professional user experience, even during high-traffic or resource-constrained scenarios.
+
 ## 🔧 Customization
 
 ### Adding New Data Sources
@@ -256,61 +297,59 @@ The AI agents have access to specialized tools:
 
 - Check Dash and Plotly versions compatibility
 
-📈 Future Enhancements
-Planned Features
-Real-time data streaming integration
+- **Dashboard Not Responding to AI Queries**: Verify that the FastAPI agent server is running on http://localhost:8000
 
-Advanced forecasting models (ARIMA, LSTM)
+## 📈 Future Enhancements
 
-Multi-warehouse support
+### Planned Features
 
-Mobile-responsive design
+- Real-time data streaming integration
 
-Export functionality for reports
+- Advanced forecasting models (ARIMA, LSTM)
 
-User authentication and roles
+- Multi-warehouse support
 
-AI Enhancements
-Custom fine-tuned models
+- Mobile-responsive design
 
-Automated anomaly detection
+- Export functionality for reports
 
-Prescriptive analytics recommendations
+- User authentication and roles
 
-Natural language data updates
+### AI Enhancements
 
-👥 Contributing
-Fork the repository
+- Custom fine-tuned models
 
-Create feature branch (git checkout -b feature/AmazingFeature)
+- Automated anomaly detection
 
-Commit changes (git commit -m 'Add AmazingFeature')
+- Prescriptive analytics recommendations
 
-Push to branch (git push origin feature/AmazingFeature)
+- Natural language data updates
 
-Open Pull Request
+## 👥 Contributing
 
-📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Fork the repository
 
-🙏 Acknowledgments
-Google Gemini for AI capabilities
+- Create feature branch (git checkout -b feature/AmazingFeature)
 
-Plotly Dash for visualization framework
+- Commit changes (git commit -m 'Add AmazingFeature')
 
-Pandas community for data processing tools
+- Push to branch (git push origin feature/AmazingFeature)
 
-Course instructors and mentors
+- Open Pull Request
+
+## 📄 License
+
+This project is licensed under the **GNU General Public License v3.0 (GPLv3)** - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Google Gemini for AI capabilities
+
+- Plotly Dash for visualization framework
+
+- Pandas community for data processing tools
+
+- Course instructors and mentors
 
 Note: This project was developed as part of a Google AI course capstone project, focusing on practical applications of AI agents in business analytics.
 
-text
-
-Este README proporciona una documentación completa del proyecto, incluyendo:
-- ✅ Descripción general y características
-- ✅ Stack tecnológico detallado
-- ✅ Estructura del proyecto
-- ✅ Instrucciones de instalación paso a paso
-- ✅ Uso de los agentes de IA
-- ✅ Solución de problemas
-- ✅ Planes futuros

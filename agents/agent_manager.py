@@ -1,3 +1,19 @@
+# [Nombre del programa, ej: Warehouse AI Agent]
+# Copyright (C) [Año] [Tu Nombre Completo]
+# 
+# Este programa es software libre: usted puede redistribuirlo y/o modificarlo
+# bajo los términos de la Licencia Pública General de GNU
+# tal como la publica la Free Software Foundation, ya sea la versión 3
+# de la Licencia, o (a su elección) cualquier versión posterior.
+#
+# Este programa se distribuye con la esperanza de que sea útil,
+# pero SIN NINGUNA GARANTÍA; incluso sin la garantía implícita de
+# COMERCIALIZACIÓN o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. 
+# Consulte la Licencia Pública General de GNU para más detalles.
+#
+# Debería haber recibido una copia de la Licencia Pública General de GNU
+# junto con este programa. Si no, vea <https://www.gnu.org/licenses/>.
+
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
@@ -19,6 +35,7 @@ class WarehouseAgentManager:
             'reference': reference_expeditions_agent, 
             'stock': stock_analysis_agent
         }
+        self._initialized = True
         
     async def query_orchestrator(self, user_message, session_id="default_session", USER_ID="default_user"):
         """

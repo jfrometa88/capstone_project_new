@@ -1,0 +1,33 @@
+flowchart TD
+    A[Dash Frontend] -->|POST /query<br/>session_id: "user_123"| B[FastAPI Server]
+    
+    B --> C[Session Manager]
+    C -->|retrieve| M[(InMemorySessionService<br/>Message History<br/>User Preferences)]
+    
+    M -->|context| D{Orchestrator Agent<br/>Gemini 2.5 Flash}
+    
+    D -->|delegate with context| E[Client Service Agent]
+    D -->|delegate with context| F[Reference Expeditions Agent]
+    D -->|delegate with context| G[Stock Analysis Agent]
+    
+    E --> H[Client Analytics Tools]
+    F --> I[Demand Forecasting Tools]
+    G --> J[Inventory Analysis Tools]
+    
+    H --> K[📊 Warehouse Data]
+    I --> K
+    J --> K
+    
+    E -->|specialized results| D
+    F -->|specialized results| D
+    G -->|specialized results| D
+    
+    D -->|update session| M
+    D -->|context-aware response| L[JSON Response<br/>+ Updated Session]
+    
+    L --> A
+    
+    classDef memory fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef session fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    class M memory
+    class C session

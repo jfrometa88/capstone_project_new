@@ -1,3 +1,19 @@
+# [Nombre del programa, ej: Warehouse AI Agent]
+# Copyright (C) [Año] [Tu Nombre Completo]
+# 
+# Este programa es software libre: usted puede redistribuirlo y/o modificarlo
+# bajo los términos de la Licencia Pública General de GNU
+# tal como la publica la Free Software Foundation, ya sea la versión 3
+# de la Licencia, o (a su elección) cualquier versión posterior.
+#
+# Este programa se distribuye con la esperanza de que sea útil,
+# pero SIN NINGUNA GARANTÍA; incluso sin la garantía implícita de
+# COMERCIALIZACIÓN o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. 
+# Consulte la Licencia Pública General de GNU para más detalles.
+#
+# Debería haber recibido una copia de la Licencia Pública General de GNU
+# junto con este programa. Si no, vea <https://www.gnu.org/licenses/>.
+
 table_style = {
     'width': '100%',
     'borderCollapse': 'collapse',
@@ -32,8 +48,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
-import asyncio
-from agents.agent_manager import agent_manager
+import requests
 
 from utils.logger import setup_logger
 
@@ -70,6 +85,8 @@ app.layout = html.Div([
                         'padding': '5px 10px', 'borderRadius': '12px', 'fontSize': '12px',
                         'marginTop': '8px'})
         ]),
+
+        html.Div(id='server-status', style={'marginBottom': '10px', 'fontSize': '12px'}),
         
         html.Div([
             dcc.Textarea(
@@ -503,7 +520,7 @@ def update_chat_input(example1, example2, example3, example4):
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
     examples = {
-        'example-1': "Show me the top 5 clients and their service levels for this year",
+        'example-1': "Show me the top 5 clients and their service levels for this year in month 1",
         'example-2': "Analyze inventory aging for our top 5 stock references",
         'example-3': "Forecast next month demand for our most shipped references", 
         'example-4': "Generate a comprehensive service level report for all clients"
@@ -536,17 +553,16 @@ def update_ai_chat(n_clicks, user_message):
         ])
     
     try:
-        # Async function to run the agent
-        async def get_ai_response():
-            return await agent_manager.query_orchestrator(user_message)
-        
-        # Run the async function and get the response
-        response = asyncio.run(get_ai_response())
+        query = {"message": user_message, "session_id": "user_id_from_dash"}
+        response = requests.post(
+        "http://localhost:8000/query",
+        json=query
+    )
         
         return html.Div([
             html.P("🤖 AI Assistant:", 
                    style={'fontWeight': 'bold', 'marginBottom': '10px', 'color': '#2c3e50'}),
-            html.Div(response, 
+            html.Div(response.json().get('response', 'No response received.'),
                     style={
                         'lineHeight': '1.6', 
                         'padding': '15px', 
@@ -584,6 +600,24 @@ def show_loading(n_clicks, user_message):
                      'padding': '20px'})
         ])
     return dash.no_update
+
+@callback(
+    Output('server-status', 'children'),
+    [Input('tabs', 'value')]
+)
+def update_server_status(tab):
+    if tab == 'tab1':
+        is_healthy = requests.get(
+            "http://localhost:8000/health",
+            timeout=30
+        )
+        
+        if is_healthy.status_code == 200:
+            return html.Span("🟢 Agent Server Connected", 
+                            style={'color': 'green', 'fontSize': '12px'})
+        else:
+            return html.Span("🔴 Agent Server Offline", 
+                            style={'color': 'red', 'fontSize': '12px'})
 
 if __name__ == '__main__':
     app.run(debug=True)
