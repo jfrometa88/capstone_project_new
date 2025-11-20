@@ -37,7 +37,10 @@ def get_top_clients(month: int = 0, limit: int = 5, year: int = 2025) -> List[st
     # Group by client and get top by ordered quantity
     logger.info(f"Getting top {limit} clients for year={year}, month={month}")
     client_totals = df.groupby('cliente')['cantidadPedida'].sum().nlargest(limit)
-    return client_totals.index.tolist()
+    client_totals = client_totals.index.tolist()
+    client_totals = [str(client) for client in client_totals]
+    logger.info(f"Top clients: {client_totals}")
+    return client_totals
 
 def get_client_service_level(month: int, client_list: List[str], year: int = 2025) -> Dict[str, float]:
     """
@@ -76,6 +79,7 @@ def get_client_service_level(month: int, client_list: List[str], year: int = 202
         service_level = total_shipped / total_ordered if total_ordered > 0 else 0
         service_levels[client] = round(service_level, 3)
     
+    service_levels = {str(k): float(v) for k, v in service_levels.items()}
     logger.info(f"Calculated service levels for clients: {service_levels}")
     return service_levels
 
@@ -112,9 +116,9 @@ def get_expedition_metrics(month: int, client_list: List[str], year: int = 2025,
     for client in client_list:
         client_data = df[df['cliente'] == client]
         metrics[client] = {
-            'expedition_count': len(client_data),
-            'total_ordered': client_data['cantidadPedida'].sum(),
-            'total_shipped': client_data['cantidadServida'].sum()
+            'expedition_count': int(len(client_data)),
+            'total_ordered': float(client_data['cantidadPedida'].sum()),
+            'total_shipped': float(client_data['cantidadServida'].sum())
         }
     logger.info(f"Calculated expedition metrics for clients: {metrics}")
     return metrics

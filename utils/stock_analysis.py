@@ -21,8 +21,10 @@ def get_top_references_stock(limit: int = 5) -> List[str]:
         return []
     
     reference_totals = df.groupby('referencia')['Piezas'].sum().nlargest(limit)
-    logger.info(f"Top {limit} references by stock: {reference_totals.index.tolist()}")
-    return reference_totals.index.tolist()
+    reference_totals = reference_totals.index.tolist()
+    reference_totals = [str(ref) for ref in reference_totals]
+    logger.info(f"Top references: {reference_totals}")
+    return reference_totals
 
 def get_avg_time_in_warehouse(reference_list: List[str]) -> Dict[str, float]:
     """
@@ -51,6 +53,7 @@ def get_avg_time_in_warehouse(reference_list: List[str]) -> Dict[str, float]:
         else:
             avg_times[ref] = 0
     
+    avg_time = {str(k): float(v) for k, v in avg_times.items()}
     logger.info(f"Calculated average time in warehouse for references: {avg_times}")
     return avg_times
 
@@ -74,9 +77,9 @@ def get_stock_metrics(reference_list: List[str]) -> Dict[str, dict]:
     for ref in reference_list:
         ref_data = df[df['referencia'] == ref]
         metrics[ref] = {
-            'total_pieces': ref_data['Piezas'].sum(),
-            'location_count': ref_data['Ubicación'].nunique(),
-            'hu_count': ref_data['HU'].nunique()
+            'total_pieces': float(ref_data['Piezas'].sum()),
+            'location_count': int(ref_data['Ubicación'].nunique()),
+            'hu_count': int(ref_data['HU'].nunique())
         }
     
     logger.info(f"Calculated stock metrics for references: {metrics}")

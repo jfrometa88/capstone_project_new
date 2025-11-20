@@ -1,25 +1,23 @@
-# Usa una imagen base oficial de Python
-FROM python:3.11-slim
+# Use an official Python runtime as a parent image
+FROM python:3.13-slim
 
-# Establece el directorio de trabajo
-WORKDIR /app
+# Establish a working directory
+WORKDIR /app_api
 
-# Copia los archivos de dependencia
+# Copy the requirements file into the container
 COPY requirements.txt .
 
-# Instala las dependencias
+# Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el resto de la aplicación
-# Asumiendo que tu estructura incluye la carpeta 'backend'
-COPY . /app
+# Copy the current directory contents into the container at /app
+COPY . /app_api
 
-# Expone el puerto que usa Uvicorn
+# Expose port 8000 for the FastAPI server
 EXPOSE 8000
 
-# Define la variable de entorno para producción
+# Define environment variable
 ENV PYTHONUNBUFFERED=1
 
-# Comando para iniciar el servidor FastAPI con Uvicorn
-# El formato es: uvicorn <nombre_del_modulo>:<nombre_del_objeto_fastapi> --host 0.0.0.0 --port 8000
-CMD ["uvicorn", "backend.agent_server:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the FastAPI server when the container launches
+CMD ["python", "IA_api.py"]

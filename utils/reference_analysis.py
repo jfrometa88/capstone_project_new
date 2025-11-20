@@ -38,7 +38,10 @@ def get_top_references_expeditions(month: int, limit: int = 5, year: int = 2025)
     # If not, we might need to adjust based on actual data structure
     reference_totals = df.groupby('idReferencia')['cantidadPedida'].sum().nlargest(limit)
     logger.info(f"Top {limit} references by expeditions: {reference_totals.index.tolist()}")
-    return reference_totals.index.tolist()
+    reference_totals = reference_totals.index.tolist()
+    reference_totals = [str(ref) for ref in reference_totals]
+    logger.info(f"Top references: {reference_totals}")
+    return reference_totals
 
 def get_reference_time_series(month: int, reference_list: List[str], year: int = 2025) -> Dict[str, dict]:
     """
@@ -74,7 +77,7 @@ def get_reference_time_series(month: int, reference_list: List[str], year: int =
         monthly_data = ref_data.groupby(ref_data['fechaTransporte'].dt.to_period('M'))['cantidadServida'].sum()
         time_series[ref] = {
             'dates': [str(period) for period in monthly_data.index],
-            'quantities': monthly_data.values.tolist()
+            'quantities': [float(i) for i in monthly_data.values.tolist()]
         }
     logger.info(f"Generated time series for references: {time_series}")
     return time_series
@@ -110,6 +113,7 @@ def forecast_next_month_demand(reference_list: List[str]) -> Dict[str, float]:
             forecast = 0
             
         forecasts[ref] = round(forecast, 2)
+    forecasts = {str(k): float(v) for k, v in forecasts.items()}
     
     logger.info(f"Forecasted next month demand for references: {forecasts}")
     return forecasts
