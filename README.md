@@ -159,8 +159,9 @@ flowchart TD
 1. **Clone the repository**
    
 ```bash
-git clone <repository-url>
-cd warehouse-analytics
+git clone https://github.com/jfrometa88/capstone_project_new.git
+cd capstone_project_new
+
 ```
 
 2. **Enviroment configuration**
@@ -348,7 +349,7 @@ The system incorporates tracing, seamlessly integrated via an ADK Plugin, to pro
 
 ### Adding New Data Sources
 
-- Extend common/utils/data_loader.py
+- Extend `common/utils/data_loader.py`
 
 - Create new analysis modules in common/utils
 
@@ -358,11 +359,11 @@ The system incorporates tracing, seamlessly integrated via an ADK Plugin, to pro
 
 ### Creating New Agents
 
-- Define specialized tools in api_app/agents/specialized_agents.py
+- Define specialized tools in `api_app/agents/specialized_agents.py`
 
 - Create agent with domain-specific instructions
 
-- Register with orchestrator in api_app/agents/orchestrator_agent.py
+- Register with orchestrator in `api_app/agents/orchestrator_agent.py`
 
 ## 🚨 Troubleshooting
 
