@@ -91,6 +91,7 @@ The system's execution path is fully auditable via **ADK Plugin Tracing**, confi
     1.  `🔍 [TRACE] Agent 'warehouse_orchestrator_agent' started`
     2.  `🔍 [TRACE] Agent 'stock_analysis_agent' started`
     3.  `api - INFO - Calculated average time in warehouse for references: {...}`
+    4.  `api - INFO - Calculated stock metrics for references: {...}`
 * **Dashboard Output:** The resulting list of high-risk references is presented in the chat, enabling the analyst to immediately cross-reference these items with the visual inventory charts already present in the Dash UI.
 
 ---
