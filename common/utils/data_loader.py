@@ -22,17 +22,17 @@ def load_expeditions_data():
     """    
     try:
         df = pd.read_excel(f'{COMMON_DATA_PATH}/expediciones_test.xlsx')
-        df['fechaTransporte'] = pd.to_datetime(df['fechaTransporte'])
-        df['cliente'] = df['cliente'].astype(str)
-        df['idReferencia'] = df['idReferencia'].astype(str)
+        df['Date'] = pd.to_datetime(df['Date'])
+        df['Client'] = df['Client'].astype(str)
+        df['idMaterial'] = df['idMaterial'].astype(str)
         logger.info("Expeditions data loaded successfully.")
         return df
     except:
         try:
             df = pd.read_excel(f'{COMMON_DATA_PATH1}/expediciones_test.xlsx')
-            df['fechaTransporte'] = pd.to_datetime(df['fechaTransporte'])
-            df['cliente'] = df['cliente'].astype(str)
-            df['idReferencia'] = df['idReferencia'].astype(str)
+            df['Date'] = pd.to_datetime(df['Date'])
+            df['Client'] = df['Client'].astype(str)
+            df['idMaterial'] = df['idMaterial'].astype(str)
             logger.info("Expeditions data loaded successfully.")
             return df
         except Exception as e:
@@ -53,13 +53,13 @@ def load_stock_data():
     """
     try:
         df = pd.read_excel(f"{COMMON_DATA_PATH}/ubicaciones_test.xlsx")
-        df['fecha'] = pd.to_datetime(df['fecha'])
+        df['Date'] = pd.to_datetime(df['Date'])
         logger.info("Stock data loaded successfully.")
         return df
     except:
         try:
             df = pd.read_excel(f"{COMMON_DATA_PATH1}/ubicaciones_test.xlsx")
-            df['fecha'] = pd.to_datetime(df['fecha'])
+            df['Date'] = pd.to_datetime(df['Date'])
             logger.info("Stock data loaded successfully.")
             return df
         except Exception as e:

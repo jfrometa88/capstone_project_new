@@ -30,13 +30,13 @@ def get_top_clients(month: int = 0, limit: int = 5, year: int = 2025) -> List[st
 
     # Apply date filters
     if year:
-        df = df[df['fechaTransporte'].dt.year == year]
+        df = df[df['Date'].dt.year == year]
     if subs_month:
-        df = df[df['fechaTransporte'].dt.month == month]
+        df = df[df['Date'].dt.month == month]
     
     # Group by client and get top by ordered quantity
     logger.info(f"Getting top {limit} clients for year={year}, month={month}")
-    client_totals = df.groupby('cliente')['cantidadPedida'].sum().nlargest(limit)
+    client_totals = df.groupby('Client')['Purchased'].sum().nlargest(limit)
     client_totals = client_totals.index.tolist()
     client_totals = [str(client) for client in client_totals]
     logger.info(f"Top clients: {client_totals}")
@@ -64,17 +64,17 @@ def get_client_service_level(month: int, client_list: List[str], year: int = 202
 
     # Apply filters
     if year:
-        df = df[df['fechaTransporte'].dt.year == year]
+        df = df[df['Date'].dt.year == year]
     if subs_month:
-        df = df[df['fechaTransporte'].dt.month == month]
+        df = df[df['Date'].dt.month == month]
     
-    df = df[df['cliente'].isin(client_list)]
+    df = df[df['Client'].isin(client_list)]
     
     service_levels = {}
     for client in client_list:
-        client_data = df[df['cliente'] == client]
-        total_ordered = client_data['cantidadPedida'].sum()
-        total_shipped = client_data['cantidadServida'].sum()
+        client_data = df[df['Client'] == client]
+        total_ordered = client_data['Purchased'].sum()
+        total_shipped = client_data['Served'].sum()
         
         service_level = total_shipped / total_ordered if total_ordered > 0 else 0
         service_levels[client] = round(service_level, 3)
@@ -106,19 +106,19 @@ def get_expedition_metrics(month: int, client_list: List[str], year: int = 2025,
 
     # Apply filters
     if year:
-        df = df[df['fechaTransporte'].dt.year == year]
+        df = df[df['Date'].dt.year == year]
     if subs_month:
-        df = df[df['fechaTransporte'].dt.month == month]
+        df = df[df['Date'].dt.month == month]
     
-    df = df[df['cliente'].isin(client_list)]
+    df = df[df['Client'].isin(client_list)]
     
     metrics = {}
     for client in client_list:
-        client_data = df[df['cliente'] == client]
+        client_data = df[df['Client'] == client]
         metrics[client] = {
             'expedition_count': int(len(client_data)),
-            'total_ordered': float(client_data['cantidadPedida'].sum()),
-            'total_shipped': float(client_data['cantidadServida'].sum())
+            'total_ordered': float(client_data['Purchased'].sum()),
+            'total_shipped': float(client_data['Served'].sum())
         }
     logger.info(f"Calculated expedition metrics for clients: {metrics}")
     return metrics
