@@ -1,11 +1,19 @@
 import pandas as pd
+import os
+import sys
 from datetime import datetime
 from .logger import setup_logger
 
 logger = setup_logger()
 
-COMMON_DATA_PATH = "/common/data"
-COMMON_DATA_PATH1 = "common/data"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+project_root = os.path.abspath(os.path.join(current_dir, '../..'))
+
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+COMMON_DATA_PATH = os.path.join(project_root, "common", "data")
 
 def load_expeditions_data():
     """
@@ -27,15 +35,7 @@ def load_expeditions_data():
         df['idMaterial'] = df['idMaterial'].astype(str)
         logger.info("Expeditions data loaded successfully.")
         return df
-    except:
-        try:
-            df = pd.read_excel(f'{COMMON_DATA_PATH1}/expediciones_test.xlsx')
-            df['Date'] = pd.to_datetime(df['Date'])
-            df['Client'] = df['Client'].astype(str)
-            df['idMaterial'] = df['idMaterial'].astype(str)
-            logger.info("Expeditions data loaded successfully.")
-            return df
-        except Exception as e:
+    except Exception as e:
             logger.error(f"Error loading expeditions data: {e}")
             return pd.DataFrame()
 
@@ -56,12 +56,6 @@ def load_stock_data():
         df['Date'] = pd.to_datetime(df['Date'])
         logger.info("Stock data loaded successfully.")
         return df
-    except:
-        try:
-            df = pd.read_excel(f"{COMMON_DATA_PATH1}/ubicaciones_test.xlsx")
-            df['Date'] = pd.to_datetime(df['Date'])
-            logger.info("Stock data loaded successfully.")
-            return df
-        except Exception as e:
-            logger.error(f"Error loading stock data: {e}")
-            return pd.DataFrame()
+    except Exception as e:
+        logger.error(f"Error loading stock data: {e}")
+        return pd.DataFrame()
