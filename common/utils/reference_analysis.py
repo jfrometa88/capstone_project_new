@@ -28,15 +28,15 @@ def get_top_references_expeditions(month: int = 0, limit: int = 5, year: int = 2
     
     # Apply date filters
     if year:
-        df = df[df['fechaTransporte'].dt.year == year]
+        df = df[df['Date'].dt.year == year]
     if sub_month:
-        df = df[df['fechaTransporte'].dt.month == month]
+        df = df[df['Date'].dt.month == month]
     
     # Group by material reference and get top by ordered quantity
     # Note: In expeditions data, 'referencia' might be client name, 
     # but we need material reference. Assuming 'idReferencia' or similar exists.
     # If not, we might need to adjust based on actual data structure
-    reference_totals = df.groupby('idReferencia')['cantidadPedida'].sum().nlargest(limit)
+    reference_totals = df.groupby('idMaterial')['Purchased'].sum().nlargest(limit)
     logger.info(f"Top {limit} references by expeditions: {reference_totals.index.tolist()}")
     reference_totals = reference_totals.index.tolist()
     reference_totals = [str(ref) for ref in reference_totals]
@@ -65,16 +65,16 @@ def get_reference_time_series(month: int, reference_list: List[str], year: int =
 
     # Apply filters
     if year:
-        df = df[df['fechaTransporte'].dt.year == year]
+        df = df[df['Date'].dt.year == year]
     if sub_month:
-        df = df[df['fechaTransporte'].dt.month == month]
+        df = df[df['Date'].dt.month == month]
     
-    df = df[df['idReferencia'].isin(reference_list)]
+    df = df[df['idMaterial'].isin(reference_list)]
     
     time_series = {}
     for ref in reference_list:
-        ref_data = df[df['idReferencia'] == ref]
-        monthly_data = ref_data.groupby(ref_data['fechaTransporte'].dt.to_period('M'))['cantidadServida'].sum()
+        ref_data = df[df['idMaterial'] == ref]
+        monthly_data = ref_data.groupby(ref_data['Date'].dt.to_period('M'))['Served'].sum()
         time_series[ref] = {
             'dates': [str(period) for period in monthly_data.index],
             'quantities': [float(i) for i in monthly_data.values.tolist()]
@@ -96,12 +96,12 @@ def forecast_next_month_demand(reference_list: List[str]) -> Dict[str, float]:
     if df.empty:
         return {}
     
-    df = df[df['idReferencia'].isin(reference_list)]
+    df = df[df['idMaterial'].isin(reference_list)]
     
     forecasts = {}
     for ref in reference_list:
-        ref_data = df[df['idReferencia'] == ref]
-        monthly_data = ref_data.groupby(ref_data['fechaTransporte'].dt.to_period('M'))['cantidadServida'].sum()
+        ref_data = df[df['idMaterial'] == ref]
+        monthly_data = ref_data.groupby(ref_data['Date'].dt.to_period('M'))['Served'].sum()
         
         if len(monthly_data) >= 3:
             # Use 3-month moving average

@@ -20,7 +20,7 @@ def get_top_references_stock(limit: int = 5) -> List[str]:
     if df.empty:
         return []
     
-    reference_totals = df.groupby('referencia')['Piezas'].sum().nlargest(limit)
+    reference_totals = df.groupby('Material')['Stock'].sum().nlargest(limit)
     reference_totals = reference_totals.index.tolist()
     reference_totals = [str(ref) for ref in reference_totals]
     logger.info(f"Top references: {reference_totals}")
@@ -40,14 +40,14 @@ def get_avg_time_in_warehouse(reference_list: List[str]) -> Dict[str, float]:
     if df.empty:
         return {}
     
-    df = df[df['referencia'].isin(reference_list)]
+    df = df[df['Material'].isin(reference_list)]
     
     avg_times = {}
     for ref in reference_list:
-        ref_data = df[df['referencia'] == ref]
+        ref_data = df[df['Material'] == ref]
         if not ref_data.empty:
             current_date = datetime.now()
-            time_in_warehouse = (current_date - ref_data['fecha']).dt.days
+            time_in_warehouse = (current_date - ref_data['Date']).dt.days
             avg_time = time_in_warehouse.mean()
             avg_times[ref] = round(avg_time, 1)
         else:
@@ -71,14 +71,14 @@ def get_stock_metrics(reference_list: List[str]) -> Dict[str, dict]:
     if df.empty:
         return {}
     
-    df = df[df['referencia'].isin(reference_list)]
+    df = df[df['Material'].isin(reference_list)]
     
     metrics = {}
     for ref in reference_list:
-        ref_data = df[df['referencia'] == ref]
+        ref_data = df[df['Material'] == ref]
         metrics[ref] = {
-            'total_pieces': float(ref_data['Piezas'].sum()),
-            'location_count': int(ref_data['Ubicación'].nunique()),
+            'total_pieces': float(ref_data['Stock'].sum()),
+            'location_count': int(ref_data['Location'].nunique()),
             'hu_count': int(ref_data['HU'].nunique())
         }
     
