@@ -4,6 +4,8 @@
 
 A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced with specialized AI agents powered by Google Gemini. This project provides intelligent insights into client service levels, material demand forecasting, and inventory management.
 
+[![Ver video](assets/thumbnail.png)](assets/video.mp4)
+
 ## 🚀 Features
 
 ### Dashboard Features
