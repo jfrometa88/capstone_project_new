@@ -1,4 +1,4 @@
-name: Run Tests
+name: CI - Tests + Docker + Compose
 
 on:
   push:
@@ -7,21 +7,27 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
+  test-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clonar repo
-      - name: Checkout code
+      # ---------------------------
+      # 1. Descargar el código
+      # ---------------------------
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ---------------------------
       # 2. Configurar Python
+      # ---------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: "3.11"
 
+      # ---------------------------
       # 3. Instalar dependencias
+      # ---------------------------
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -29,6 +35,48 @@ jobs:
           pip install -r dash_app/requirements.txt
           pip install pytest
 
+      # ---------------------------
       # 4. Ejecutar Pytest
-      - name: Run tests
-        run: pytest common/tests
+      # ---------------------------
+      - name: Run pytest
+        run: pytest
+
+      # ---------------------------
+      # 5. Activar Docker Buildx (más moderno y rápido)
+      # ---------------------------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ---------------------------
+      # 6. Build imagen Docker: API
+      # ---------------------------
+      - name: Build API Docker image
+        run: |
+          docker build \
+            -f api_app/Dockerfile.api \
+            -t warehouse-analytics-api .
+
+      # ---------------------------
+      # 7. Build imagen Docker: Dash
+      # ---------------------------
+      - name: Build Dash Docker image
+        run: |
+          docker build \
+            -f dash_app/Dockerfile.dash \
+            -t warehouse-analytics-dash .
+
+      # ---------------------------
+      # 8. Probar docker-compose (levantar ambos servicios)
+      # ---------------------------
+      - name: Test docker-compose startup
+        run: |
+          docker-compose up -d
+          sleep 10  # esperar a que ambos servicios arranquen
+          docker ps
+
+      # ---------------------------
+      # 9. Apagar los servicios siempre (éxito o fallo)
+      # ---------------------------
+      - name: Stop services
+        if: always()
+        run: docker-compose down
