@@ -42,6 +42,11 @@ A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced w
 - **Gemini 2.5 Flash**: Large language model
 - **Custom Tools**: Modular function tools for data analysis
 
+### Testing & CI/CD
+- **Pytest**: Automated unit and integration tests 
+- **GitHub Actions**: Continuous Integration pipeline running tests on every push and pull request
+
+
 ### 🐳 Docker Architecture
 
 The project uses a multi-container Docker setup for better scalability and isolation:
@@ -450,6 +455,7 @@ The system incorporates tracing, seamlessly integrated via an ADK Plugin, to pro
 This project is licensed under the **GNU General Public License v3.0 (GPLv3)** - see the LICENSE file for details.
 
 Note: This project was developed as part of a Google AI course capstone project, focusing on practical applications of AI agents in business analytics.
+
 
 
 
