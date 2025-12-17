@@ -1,67 +1,66 @@
 import pandas as pd
-from datetime import datetime
+import os
+import sys
 from .logger import setup_logger
 
 logger = setup_logger()
 
-COMMON_DATA_PATH = "/common/data"
-COMMON_DATA_PATH1 = "common/data"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+project_root = os.path.abspath(os.path.join(current_dir, "../.."))
+
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+COMMON_DATA_PATH = os.path.join(project_root, "common", "data")
+
 
 def load_expeditions_data():
     """
     Load and return expeditions data from Excel file.
-    
+
     Returns:
         pandas.DataFrame: Expeditions data with columns:
-            - idlinea: int
-            - idReferencia: int  
-            - referencia: str
-            - cantidadPedida: float
-            - cantidadServida: float
-            - fechaTransporte: datetime
-    """    
+            - idLine: int
+            - idMaterial: int
+            - Material: str
+            - Purchased: float
+            - Served: float
+            - Client: str
+            - Date: datetime
+    """
     try:
-        df = pd.read_excel(f'{COMMON_DATA_PATH}/expediciones_test.xlsx')
-        df['fechaTransporte'] = pd.to_datetime(df['fechaTransporte'])
-        df['cliente'] = df['cliente'].astype(str)
-        df['idReferencia'] = df['idReferencia'].astype(str)
+        df = pd.read_excel(f"{COMMON_DATA_PATH}/expediciones_test.xlsx")
+        df["Date"] = pd.to_datetime(df["Date"])
+        df["Client"] = df["Client"].astype(str)
+        df["idMaterial"] = df["idMaterial"].astype(str)
+        df["Purchased"] = pd.to_numeric(df["Purchased"], errors="coerce").fillna(0)
+        df["Served"] = pd.to_numeric(df["Served"], errors="coerce").fillna(0)
         logger.info("Expeditions data loaded successfully.")
         return df
-    except:
-        try:
-            df = pd.read_excel(f'{COMMON_DATA_PATH1}/expediciones_test.xlsx')
-            df['fechaTransporte'] = pd.to_datetime(df['fechaTransporte'])
-            df['cliente'] = df['cliente'].astype(str)
-            df['idReferencia'] = df['idReferencia'].astype(str)
-            logger.info("Expeditions data loaded successfully.")
-            return df
-        except Exception as e:
-            logger.error(f"Error loading expeditions data: {e}")
-            return pd.DataFrame()
+    except Exception as e:
+        logger.error(f"Error loading expeditions data: {e}")
+        return pd.DataFrame()
+
 
 def load_stock_data():
     """
     Load and return stock locations data from Excel file.
-    
+
     Returns:
         pandas.DataFrame: Stock data with columns:
-            - Ubicación: str
-            - referencia: str
+            - Location: str
+            - Material: str
             - HU: str
-            - Piezas: float
-            - Fecha: datetime
+            - Stock: float
+            - Date: datetime
     """
     try:
         df = pd.read_excel(f"{COMMON_DATA_PATH}/ubicaciones_test.xlsx")
-        df['fecha'] = pd.to_datetime(df['fecha'])
+        df["Date"] = pd.to_datetime(df["Date"])
+        df["Stock"] = pd.to_numeric(df["Stock"], errors="coerce").fillna(0)
         logger.info("Stock data loaded successfully.")
         return df
-    except:
-        try:
-            df = pd.read_excel(f"{COMMON_DATA_PATH1}/ubicaciones_test.xlsx")
-            df['fecha'] = pd.to_datetime(df['fecha'])
-            logger.info("Stock data loaded successfully.")
-            return df
-        except Exception as e:
-            logger.error(f"Error loading stock data: {e}")
-            return pd.DataFrame()
+    except Exception as e:
+        logger.error(f"Error loading stock data: {e}")
+        return pd.DataFrame()

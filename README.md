@@ -4,6 +4,8 @@
 
 A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced with specialized AI agents powered by Google Gemini. This project provides intelligent insights into client service levels, material demand forecasting, and inventory management.
 
+![Demostración del Dashboard de Análisis de Almacén](assets/dashboard.gif)
+
 ## 🚀 Features
 
 ### Dashboard Features
@@ -39,6 +41,11 @@ A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced w
 - **Google ADK**: Agent development kit
 - **Gemini 2.5 Flash**: Large language model
 - **Custom Tools**: Modular function tools for data analysis
+
+### Testing & CI/CD
+- **Pytest**: Automated unit and integration tests 
+- **GitHub Actions**: Continuous Integration pipeline running tests on every push and pull request
+
 
 ### 🐳 Docker Architecture
 
@@ -448,4 +455,7 @@ The system incorporates tracing, seamlessly integrated via an ADK Plugin, to pro
 This project is licensed under the **GNU General Public License v3.0 (GPLv3)** - see the LICENSE file for details.
 
 Note: This project was developed as part of a Google AI course capstone project, focusing on practical applications of AI agents in business analytics.
+
+
+
 

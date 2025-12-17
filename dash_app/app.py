@@ -85,8 +85,8 @@ expeditions_df = load_expeditions_data()
 stock_df = load_stock_data()
 
 # Get available years and months from data
-available_years = sorted(expeditions_df['fechaTransporte'].dt.year.unique()) if not expeditions_df.empty else []
-available_months = sorted(expeditions_df['fechaTransporte'].dt.month.unique()) if not expeditions_df.empty else []
+available_years = sorted(expeditions_df['Date'].dt.year.unique()) if not expeditions_df.empty else []
+available_months = sorted(expeditions_df['Date'].dt.month.unique()) if not expeditions_df.empty else []
 
 app.layout = html.Div([
     html.H1("Warehouse Analytics Dashboard", style={'textAlign': 'center', 'marginBottom': 30}),
@@ -622,11 +622,16 @@ def show_loading_(n_clicks, user_message):
     [Input('tabs', 'value')]
 )
 def update_server_status(tab):
-    if tab == 'tab1':
-        is_healthy = requests.get(
-            f"{API_URL}/health",
-            timeout=30
-        )
+    if tab:
+        try:
+            is_healthy = requests.get(
+                f"{API_URL}/health",
+                timeout=10
+            )
+        except requests.RequestException as e:
+            logger.error(f"Health check failed: {e}")
+            return html.Span("🔴 Agent Server Offline", 
+                            style={'color': 'red', 'fontSize': '12px'})
         
         if is_healthy.status_code == 200:
             return html.Span("🟢 Agent Server Connected", 

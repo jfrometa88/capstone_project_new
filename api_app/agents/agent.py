@@ -40,7 +40,7 @@ def avalaible_years():
     """
     if df_expeditions.empty:
         return []
-    years = df_expeditions['fechaTransporte'].dt.year.unique().tolist()
+    years = df_expeditions['Date'].dt.year.unique().tolist()
     years.sort()
     return years
 
@@ -53,7 +53,7 @@ def avalaible_months():
     """
     if df_expeditions.empty:
         return []
-    months = df_expeditions['fechaTransporte'].dt.month.unique().tolist()
+    months = df_expeditions['Date'].dt.month.unique().tolist()
     months.sort()
     return months
 
