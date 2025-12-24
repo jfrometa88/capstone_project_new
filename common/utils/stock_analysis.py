@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime
-from .data_loader import load_stock_data
+from .data_loader import stock_data_sql
 from .logger import setup_logger
 from typing import List, Dict
 
@@ -16,7 +16,7 @@ def get_top_references_stock(limit: int = 5) -> List[str]:
     Returns:
         List[str]: List of top reference names
     """
-    df = load_stock_data()
+    df = stock_data_sql()
     if df.empty:
         return []
     
@@ -36,26 +36,24 @@ def get_avg_time_in_warehouse(reference_list: List[str]) -> Dict[str, float]:
     Returns:
         Dict[str, float]: Average time in days for each reference
     """
-    df = load_stock_data()
+    df = stock_data_sql()
     if df.empty:
         return {}
+
+    df_filtered = df[df['Material'].isin(reference_list)].copy()
+
+    current_date = datetime.now()
     
-    df = df[df['Material'].isin(reference_list)]
+    # Calcular días para todos de golpe (Vectorizado)
+    df_filtered['days'] = (current_date - df_filtered['Date']).dt.days
     
-    avg_times = {}
-    for ref in reference_list:
-        ref_data = df[df['Material'] == ref]
-        if not ref_data.empty:
-            current_date = datetime.now()
-            time_in_warehouse = (current_date - ref_data['Date']).dt.days
-            avg_time = time_in_warehouse.mean()
-            avg_times[ref] = round(avg_time, 1)
-        else:
-            avg_times[ref] = 0
-    
-    avg_times = {str(k): float(v) for k, v in avg_times.items()}
+    # Agrupar y calcular media
+    result = df_filtered.groupby('Material')['days'].mean().round(1).to_dict()
+    avg_times = {str(k): float(v) for k, v in result.items()}
     logger.info(f"Calculated average time in warehouse for references: {avg_times}")
     return avg_times
+    
+    
 
 def get_stock_metrics(reference_list: List[str]) -> Dict[str, dict]:
     """
@@ -67,7 +65,7 @@ def get_stock_metrics(reference_list: List[str]) -> Dict[str, dict]:
     Returns:
         Dict[str, dict]: Stock metrics for each reference
     """
-    df = load_stock_data()
+    df = stock_data_sql()
     if df.empty:
         return {}
     

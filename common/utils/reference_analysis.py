@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from .data_loader import load_expeditions_data, load_stock_data
+from .data_loader import expeditions_data_sql
 from .logger import setup_logger
 from typing import List, Dict
 
@@ -18,7 +18,7 @@ def get_top_references_expeditions(month: int = 0, limit: int = 5, year: int = 2
     Returns:
         List[str]: List of top reference names
     """
-    df = load_expeditions_data()
+    df = expeditions_data_sql()
     if df.empty:
         return []
     
@@ -55,7 +55,7 @@ def get_reference_time_series(month: int, reference_list: List[str], year: int =
     Returns:
         Dict[str, dict]: Time series data for each reference
     """
-    df = load_expeditions_data()
+    df = expeditions_data_sql()
     if df.empty:
         return {}
     
@@ -92,7 +92,7 @@ def forecast_next_month_demand(reference_list: List[str]) -> Dict[str, float]:
     Returns:
         Dict[str, float]: Forecasted demand for each reference
     """
-    df = load_expeditions_data()
+    df = expeditions_data_sql()
     if df.empty:
         return {}
     

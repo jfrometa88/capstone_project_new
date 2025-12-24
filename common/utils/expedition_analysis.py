@@ -1,4 +1,4 @@
-from .data_loader import load_expeditions_data
+from .data_loader import expeditions_data_sql, stock_data_sql
 from .logger import setup_logger
 from typing import List, Dict, Optional
 
@@ -21,7 +21,7 @@ def get_top_clients(
     Returns:
         List[str]: List of top client names
     """
-    df = load_expeditions_data()
+    df = expeditions_data_sql()
     if df.empty:
         return []
 
@@ -54,7 +54,7 @@ def get_client_service_level(
     Returns:
         Dict[str, float]: Service levels for each client
     """
-    df = load_expeditions_data()
+    df = expeditions_data_sql()
     if df.empty:
         return {}
 
@@ -99,7 +99,7 @@ def get_expedition_metrics(
     Returns:
         Dict[str, dict]: Metrics for each client
     """
-    df = load_expeditions_data()
+    df = expeditions_data_sql()
     if df.empty:
         return {}
 
