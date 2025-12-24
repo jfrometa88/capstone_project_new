@@ -9,6 +9,7 @@ A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced w
 ## 🚀 Features
 
 ### Dashboard Features
+
 - **Client Service Level Analysis**: Track and visualize client performance metrics
 - **Reference Demand Analysis**: Analyze material demand patterns and trends  
 - **Stock & Inventory Analysis**: Monitor stock levels and inventory aging
@@ -16,6 +17,7 @@ A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced w
 - **Real-time Visualizations**: Dynamic charts and tables with professional styling
 
 ### AI-Powered Insights
+
 - **🤖 Intelligent Assistant**: Natural language queries about warehouse data
 - **Specialized Agents**: Three domain-specific AI agents:
   - **Client Service Agent**: Client performance and service level analysis
@@ -26,23 +28,27 @@ A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced w
 ## 🛠 Technology Stack
 
 ### Frontend & Visualization
+
 - **Plotly Dash**: Interactive web dashboard
 - **Plotly Graph Objects**: Advanced data visualizations
 - **HTML/CSS**: Custom styling and responsive design
 - **Requests (communication)**: HTTP client to synchronously consume the FastAPI AI service. 
 
 ### Backend & Data Processing
+
 - **Python 3.13**: Core programming language
 - **FastAPI**: Asynchronous API to manage Dashboard interaction with IA.
 - **Pandas**: Data manipulation and analysis
 - **Openpyxl**: Excel file processing
 
 ### AI & Machine Learning
+
 - **Google ADK**: Agent development kit
 - **Gemini 2.5 Flash**: Large language model
 - **Custom Tools**: Modular function tools for data analysis
 
 ### Testing & CI/CD
+
 - **Pytest**: Automated unit and integration tests 
 - **GitHub Actions**: Continuous Integration pipeline running tests on every push and pull request
 
@@ -52,17 +58,20 @@ A comprehensive warehouse analytics dashboard built with Plotly Dash, enhanced w
 The project uses a multi-container Docker setup for better scalability and isolation:
 
 ### Container Structure
+
 - **api_app**: FastAPI backend with AI agents (Port 8000)
 - **dash_app**: Plotly Dash frontend (Port 8050) 
 - **Shared Volume**: `common/` directory for shared utilities and data
 
 ### Benefits
+
 - **Isolated Environments**: Separate dependencies for API and Dashboard
 - **Easy Deployment**: One command to start all services
 - **Development Consistency**: Same environment across all machines
 - **Scalability**: Easy to scale individual components
 
 ## 📁 Project Structure
+
 ```text
 warehouse-analytics/
 │
@@ -108,6 +117,7 @@ warehouse-analytics/
 ## 🏗 Architecture
 
 ### Data Flow
+
 1. **Data Loading**: Excel files → Pandas DataFrames
 2. **Processing**: Modular functions in `common/utils`
 3. **Visualization**: Dash components and Plotly charts
@@ -154,6 +164,7 @@ flowchart TD
 ## ⚙️ Installation & Setup
 
 ### Prerequisites
+
 - Python 3.13
 - Google Gemini API key
 - Git
@@ -164,14 +175,13 @@ flowchart TD
 #### Quick Start with Docker (Recommended)
 
 1. **Clone the repository**
-   
+
 ```bash
 git clone https://github.com/jfrometa88/capstone_project_new.git
 cd capstone_project_new
-
 ```
 
-2. **Enviroment configuration**
+2.**Enviroment configuration**
 
 ```bash
 # Create .env file
@@ -179,19 +189,20 @@ cp .env.example .env
 # Edit .env and add your Gemini API key
 echo "GEMINI_API_KEY=your_google_gemini_api_key_here" >> .env
 ```
-3. **Prepare sample data**
+
+3.**Prepare sample data**
 
 - Place your Excel files in the common/data/ directory
 
 - Ensure files follow the expected column structure
 
-4. **Run with Docker Compose**
+4.**Run with Docker Compose**
 
 ```bash
 docker-compose up --build
 ```
 
-5. **Access the applications**
+5.**Access the applications**
 
 - Dashboard: http://localhost:8050
 
@@ -204,13 +215,13 @@ docker-compose up --build
 If you prefer to run without Docker:
 
 1. **Create virtual environment**
-   
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. **Install dependencies**
+3.**Install dependencies**
 
 ```bash
 cd api_app 
@@ -221,26 +232,26 @@ cd dash_app
 pip install -r requirements.txt
 ```
 
-4. **Environment configuration**
+4.**Environment configuration**
 
 ```bash
 # Create .env file
 echo "GEMINI_API_KEY=your_google_gemini_api_key_here" > .env
 ```
 
-5. **Prepare sample data**
+5.**Prepare sample data**
 
 - Place your Excel files in the data/ directory
 
 - Ensure files follow the expected column structure
 
-6. **Run the IA backend server**
+6.**Run the IA backend server**
 
 ```bash
 python api_app/IA_api.py
 ```
 
-7. **Run the Dashboard application**
+7.**Run the Dashboard application**
 _Open a new terminal_
 
 ```bash
@@ -250,7 +261,6 @@ python dash_app/app.py
 1. **Access the dashboard**
 
 - Open [http://127.0.0.1:8050] in your browser
-
 
 ## 📊 Data Requirements
 
