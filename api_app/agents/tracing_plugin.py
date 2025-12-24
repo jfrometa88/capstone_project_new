@@ -1,6 +1,5 @@
 
-import logging
-from datetime import datetime
+from common.utils.logger import setup_logger
 from google.adk.agents.base_agent import BaseAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models.llm_request import LlmRequest
@@ -13,7 +12,7 @@ class MinimalTracingPlugin(BasePlugin):
         super().__init__(name="minimal_tracing_plugin")
         self.agent_count = 0
         self.llm_count = 0
-        self.logger = logging.getLogger("minimal_tracing")
+        self.logger = setup_logger("minimal_tracing")
 
     async def before_agent_callback(
         self, *, agent: BaseAgent, callback_context: CallbackContext

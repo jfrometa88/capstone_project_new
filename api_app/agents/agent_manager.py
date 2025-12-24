@@ -22,7 +22,7 @@ from common.utils.logger import setup_logger
 from agents.agent import orchestrator_agent, client_service_agent, reference_expeditions_agent, stock_analysis_agent
 from agents.tracing_plugin import tracing_plugin
 
-logger = setup_logger()
+logger = setup_logger('api.agents.agent_manager')
 
 class WarehouseAgentManager:
     """Manager for all warehouse analytics AI agents"""
@@ -44,7 +44,7 @@ class WarehouseAgentManager:
         Send query to orchestrator agent (recommended for most queries)
         """
         try:
-            if type(user_message) == str:
+            if type(user_message) is str:
                 user_message = [user_message]
                 for query in user_message:
                     logger.info(f"Orchestrator processing query: {query}")

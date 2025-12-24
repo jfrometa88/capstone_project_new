@@ -35,7 +35,7 @@ from agents.agent_manager import agent_manager
 from agents.tracing_plugin import tracing_plugin
 
 # Configure logging
-logger = setup_logger()
+logger = setup_logger('api.IA_api')
 
 # Create FastAPI app
 app = FastAPI(

@@ -1,9 +1,7 @@
 import logging
 import os
-from datetime import datetime
-import functools
 
-def setup_logger():
+def setup_logger(name:str) -> logging.Logger:
     """Configurar el sistema de logging"""
     
     # Crear directorio de logs si no existe
@@ -11,7 +9,7 @@ def setup_logger():
         os.makedirs('logs')
     
     # Nombre del archivo con fecha
-    log_filename = f"logs/api_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    log_filename = "logs/logs.log"
     
     # Configurar logging
     logging.basicConfig(
@@ -21,9 +19,6 @@ def setup_logger():
             logging.FileHandler(log_filename, encoding='utf-8'),
             logging.StreamHandler()  # También muestra en consola
         ]
-    )
-    
-    return logging.getLogger('api')
+    )    
+    return logging.getLogger(name)
 
-# Inicializar logger
-logger = setup_logger()

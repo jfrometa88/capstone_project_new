@@ -3,7 +3,7 @@ import os
 import sys
 from .logger import setup_logger
 
-logger = setup_logger()
+logger = setup_logger('common.utils.data_loader')
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 

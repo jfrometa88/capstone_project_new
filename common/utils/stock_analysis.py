@@ -4,7 +4,7 @@ from .data_loader import load_stock_data
 from .logger import setup_logger
 from typing import List, Dict
 
-logger = setup_logger()
+logger = setup_logger('common.utils.stock_analysis')
 
 def get_top_references_stock(limit: int = 5) -> List[str]:
     """

@@ -2,7 +2,7 @@ from .data_loader import load_expeditions_data
 from .logger import setup_logger
 from typing import List, Dict, Optional
 
-logger = setup_logger()
+logger = setup_logger('common.utils.expedition_analysis')
 
 
 def get_top_clients(

@@ -5,7 +5,7 @@ from google.genai import types
 from google.adk.models.google_llm import Gemini
 
 # 1. Configurar Logger básico
-logger = setup_logger()
+logger = setup_logger('api_app.config')
 
 # 2. Cargar variables de entorno desde el archivo .env
 load_dotenv()

@@ -61,7 +61,7 @@ if project_root not in sys.path:
 
 from common.utils.logger import setup_logger
 
-logger = setup_logger()
+logger = setup_logger('dash_app.app')
 
 # Import our utility functions
 from common.utils.data_loader import load_expeditions_data, load_stock_data

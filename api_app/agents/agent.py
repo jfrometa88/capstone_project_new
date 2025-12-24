@@ -23,12 +23,13 @@ from config import WAREHOUSE_MODEL_orq, WAREHOUSE_MODEL_esp
 from common.utils.expedition_analysis import get_top_clients, get_client_service_level, get_expedition_metrics
 from common.utils.reference_analysis import get_top_references_expeditions, get_reference_time_series, forecast_next_month_demand
 from common.utils.stock_analysis import get_top_references_stock, get_avg_time_in_warehouse, get_stock_metrics
+from common.utils.data_loader import load_expeditions_data
 
 # Setup logging
 from common.utils.logger import setup_logger
-logger = setup_logger()
+logger = setup_logger('api.agents.agent')
 
-from common.utils.data_loader import load_expeditions_data
+
 df_expeditions = load_expeditions_data()
 
 def avalaible_years():
