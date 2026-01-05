@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile.api
     container_name: warehouse_api
     volumes:
-      - ./common:/common:ro
+      - ./common:/common:rw
     environment:
       PYTHONPATH: "/app:/common"
       # Carga automáticamente variables del .env

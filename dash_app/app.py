@@ -135,16 +135,18 @@ app.layout = html.Div([
             ]),
         ]),
         
-        html.Div(id='ai-chat-response', style={
-            'marginTop': '20px', 
-            'padding': '20px', 
-            'backgroundColor': '#f8f9fa', 
-            'borderRadius': '10px',
-            'border': '1px solid #dfe6e9',
-            'minHeight': '120px',
-            'whiteSpace': 'pre-wrap',
-            'lineHeight': '1.6'
-        }),
+        html.Div(
+            style={'marginTop': '20px', 'padding': '20px', 'backgroundColor': '#f8f9fa', 'borderRadius': '10px'},
+            children=[
+                html.P("🤖 AI Assistant:", style={'fontWeight': 'bold'}),
+                # dcc.Loading detecta cuando 'ai-chat-response' está calculando
+                dcc.Loading(
+                    id="loading-ai",
+                    type="circle", # o "default", "dot", etc.
+                    children=dcc.Markdown(id='ai-chat-response', children="")
+                )
+            ]
+        ),
         
         html.Div([
             html.P("💡 Example questions:", style={'fontWeight': 'bold', 'marginBottom': '8px', 'color': '#2c3e50'}),
@@ -544,17 +546,6 @@ def update_chat_input(example1, example2, example3, example4):
     
     return examples.get(button_id, "")
 
-# Callback to show loading
-@callback(
-    Output('chat-loading', 'children'),
-    [Input('ai-chat-button', 'n_clicks')],
-    [State('ai-chat-input', 'value')]
-)
-def show_loading(n_clicks, message):
-    if n_clicks > 0 and message:
-        return "⏳ Processing..."
-    return ""
-
 @callback(
     Output('ai-chat-response', 'children'),
     [Input('ai-chat-button', 'n_clicks')],
@@ -575,47 +566,13 @@ def update_ai_chat(n_clicks, user_message):
         json=query
     )
         
-        return html.Div([
-            html.P("🤖 AI Assistant:", 
-                   style={'fontWeight': 'bold', 'marginBottom': '10px', 'color': '#2c3e50'}),
-            html.Div(response.json().get('response', 'No response received.'),
-                    style={
-                        'lineHeight': '1.6', 
-                        'padding': '15px', 
-                        'backgroundColor': 'white', 
-                        'borderRadius': '8px',
-                        'border': '1px solid #e1e8ed'
-                    })
-        ])
+        # Extraemos el texto. Si es None, enviamos un string vacío para evitar el error.
+        texto_markdown = response.json().get('response', 'No response received.')
+        
+        return str(texto_markdown) # IMPORTANTE: Retornar solo el string
         
     except Exception as e:
-        logger.error(f"Error in AI chat callback: {e}")
-        return html.Div([
-            html.P("❌ Error:", 
-                   style={'fontWeight': 'bold', 'color': '#e74c3c', 'marginBottom': '10px'}),
-            html.P(f"Failed to get AI response: {str(e)}", 
-                   style={'color': '#7f8c8d'}),
-            html.P("Please check if the AI service is properly configured.", 
-                   style={'color': '#7f8c8d', 'fontStyle': 'italic'})
-        ])
-
-# Callback to show loading
-@callback(
-    Output('ai-chat-response', 'children', allow_duplicate=True),
-    [Input('ai-chat-button', 'n_clicks')],
-    [State('ai-chat-input', 'value')],
-    prevent_initial_call=True
-)
-def show_loading_(n_clicks, user_message):
-    if n_clicks and user_message:
-        return html.Div([
-            html.Div([
-                html.Span("⏳ Processing your query...", 
-                         style={'marginLeft': '10px', 'color': '#3498db'})
-            ], style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', 
-                     'padding': '20px'})
-        ])
-    return dash.no_update
+        return f"**Error:** No se pudo conectar con la IA ({str(e)})"
 
 @callback(
     Output('server-status', 'children'),

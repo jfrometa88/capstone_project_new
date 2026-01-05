@@ -1,15 +1,17 @@
 import logging
-import os
+from pathlib import Path
 
 def setup_logger(name:str) -> logging.Logger:
     """Configurar el sistema de logging"""
     
-    # Crear directorio de logs si no existe
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
+    # 1. Definir la ruta usando Path (independiente del SO)
+    log_dir = Path("common") / "data" / "logs"
     
-    # Nombre del archivo con fecha
-    log_filename = "logs/logs.log"
+    # 2. Crear el directorio y sus padres si no existen (exist_ok evita errores)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    # 3. Definir el archivo final
+    log_filename = log_dir / "logs.log"
     
     # Configurar logging
     logging.basicConfig(

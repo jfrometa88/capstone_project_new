@@ -14,19 +14,24 @@
 # Debería haber recibido una copia de la Licencia Pública General de GNU
 # junto con este programa. Si no, vea <https://www.gnu.org/licenses/>.
 
-from fastapi import FastAPI, HTTPException
+from typing import Optional
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import sys
-import os
+from pathlib import Path
+from collections import deque
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
+# Obtiene la ruta de la carpeta donde está este archivo
+current_dir = Path(__file__).resolve().parent
 
-project_root = os.path.abspath(os.path.join(current_dir, '..'))
+# Obtiene la raíz del proyecto (un nivel arriba)
+project_root = current_dir.parent
 
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Insertar en sys.path si no está
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from common.utils.logger import setup_logger
 
@@ -128,3 +133,32 @@ if __name__ == "__main__":
         port=8000,
         reload=True,  # Auto-reload during development        
     )
+
+@app.get("/logs")
+async def obtener_logs(lineas: Optional[int] = None):
+    """
+    Devuelve las últimas N líneas del archivo de log usando rutas agnósticas.
+    """
+    # 1. Definir la ruta usando la misma estructura que en setup_logger
+    # Es recomendable que esta ruta venga de una variable global o config
+    log_path = Path("common") / "data" / "logs" / "logs.log"
+    
+    # 2. Verificación de existencia multiplataforma
+    if not log_path.exists():
+        raise HTTPException(status_code=404, detail=f"Archivo no encontrado en {log_path}")
+    
+    n_lineas = lineas or 50
+    
+    # 3. Lectura eficiente (usando deque para no cargar todo el archivo en RAM)
+    try:
+        with open(log_path, "r", encoding="utf-8") as f:
+            # deque con maxlen solo guarda las últimas N líneas, ahorrando memoria
+            ultimas_lineas = deque(f, maxlen=n_lineas)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al leer el archivo: {str(e)}")
+    
+    separador = "\n" + "-"*50 + "\n"
+    # Unimos las líneas (deque se comporta como una lista)
+    contenido_limpio = separador.join([linea.strip() for linea in ultimas_lineas])
+        
+    return Response(content=contenido_limpio, media_type="text/plain")
