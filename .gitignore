@@ -4,3 +4,6 @@ __pycache__/
 *.pyc
 /logs
 .vscode/
+*.log
+.DS_Store
+/cache/
